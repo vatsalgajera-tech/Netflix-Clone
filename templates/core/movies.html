@@ -1,0 +1,127 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} - Movies{% endblock %}
+
+{% block styles %}
+<style>
+.page-hero {
+    height: 40vh; background: linear-gradient(to bottom, #141414 0%, #1a1a1a 100%);
+    display: flex; align-items: flex-end; padding: 0 60px 30px;
+    border-bottom: 3px solid #e50914;
+    position: relative; overflow: hidden;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: url('{% static "background_netflix.jpg" %}') center/cover no-repeat;
+    opacity: 0.15; filter: blur(2px);
+}
+.page-title { font-size: 3rem; font-weight: 800; position: relative; z-index: 1; }
+.filter-bar {
+    padding: 20px 60px; background: #181818; border-bottom: 1px solid #2a2a2a;
+    display: flex; align-items: center; gap: 15px; flex-wrap: wrap;
+}
+.filter-bar select {
+    background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 8px 15px;
+    border-radius: 4px; font-size: 14px; cursor: pointer;
+}
+.filter-bar select:focus { outline: none; border-color: #e50914; }
+.movies-grid { padding: 30px 60px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.movie-card {
+    border-radius: 4px; overflow: hidden; cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s; position: relative;
+    text-decoration: none; display: block;
+}
+.movie-card:hover { transform: scale(1.06); box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 10; }
+.movie-card img { width: 100%; height: 260px; object-fit: cover; display: block; }
+.movie-card .card-body {
+    background: #1f1f1f; padding: 10px; color: #e5e5e5;
+}
+.movie-card .card-body h6 { font-size: 13px; font-weight: 600; margin: 0 0 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.movie-card .card-body small { color: #aaa; font-size: 11px; }
+.movie-card .card-hover {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+}
+.movie-card:hover .card-hover { opacity: 1; }
+.card-hover .play-btn {
+    width: 50px; height: 50px; background: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #000;
+}
+.card-hover .hover-title { font-size: 13px; font-weight: 600; text-align: center; padding: 0 10px; }
+.empty-state { text-align: center; padding: 80px; color: #aaa; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+    <div>
+        <div style="color: #e50914; font-size: 13px; font-weight: 700; letter-spacing: 2px; margin-bottom: 8px;">EXPLORE</div>
+        <h1 class="page-title">Movies</h1>
+    </div>
+</div>
+
+<div class="filter-bar">
+    <span style="color: #aaa; font-size: 14px;">Filter by:</span>
+    <form method="get" style="display:flex; gap:10px; align-items:center;">
+        <select name="category" onchange="this.form.submit()">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    {% if selected_category %}
+        <a href="{% url 'core:movies' %}" style="color: #e50914; font-size: 13px; text-decoration: none;">✕ Clear</a>
+    {% endif %}
+    <span style="color: #aaa; font-size: 13px; margin-left: auto;">{{ movies|length }} titles</span>
+</div>
+
+<div class="movies-grid">
+    {% for movie in movies %}
+    <a href="{% url 'core:detail' movie.pk %}" class="movie-card">
+        {% if movie.poster_url %}
+            <img src="{{ movie.poster_url }}" alt="{{ movie.title }}">
+        {% elif movie.poster_image %}
+            <img src="{{ movie.poster_image.url }}" alt="{{ movie.title }}">
+        {% else %}
+            <img src="{% static 'POSTER/download (1).jpg' %}" alt="{{ movie.title }}">
+        {% endif %}
+        <div class="card-hover">
+            <div class="play-btn"><i class="fa-solid fa-play"></i></div>
+            <div class="hover-title">{{ movie.title }}</div>
+        </div>
+        <div class="card-body">
+            <h6>{{ movie.title }}</h6>
+            <small>{{ movie.release_year }} • {{ movie.duration }}</small>
+        </div>
+    </a>
+    {% empty %}
+    <!-- Static Demo Content -->
+    {% for i in "12345678910"|make_list %}
+    <a href="#" class="movie-card">
+        {% if forloop.counter == 1 %}<img src="{% static 'POSTER/download (1).jpg' %}" alt="Movie">
+        {% elif forloop.counter == 2 %}<img src="{% static 'POSTER/download (2).jpg' %}" alt="Movie">
+        {% elif forloop.counter == 3 %}<img src="{% static 'POSTER/download (3).jpg' %}" alt="Movie">
+        {% elif forloop.counter == 4 %}<img src="{% static 'POSTER/download (4).jpg' %}" alt="Movie">
+        {% elif forloop.counter == 5 %}<img src="{% static 'POSTER/download (5).jpg' %}" alt="Movie">
+        {% elif forloop.counter == 6 %}<img src="{% static 'POSTER/download (6).jpg' %}" alt="Movie">
+        {% elif forloop.counter == 7 %}<img src="{% static 'POSTER/Damsel.jpg' %}" alt="Damsel">
+        {% elif forloop.counter == 8 %}<img src="{% static 'POSTER/HellBound.jpg' %}" alt="HellBound">
+        {% elif forloop.counter == 9 %}<img src="{% static 'POSTER/Enola Holmes (Netflix tie-in)_ The Case of the Missing Marquess.jpg' %}" alt="Enola Holmes">
+        {% else %}<img src="{% static 'POSTER/enola holmes 2.jpg' %}" alt="Enola Holmes 2">
+        {% endif %}
+        <div class="card-hover">
+            <div class="play-btn"><i class="fa-solid fa-play"></i></div>
+        </div>
+        <div class="card-body">
+            <h6>Movie {% cycle 'Red Notice' 'Extraction 2' 'The Gray Man' 'Adam Project' 'Army of Darkness' 'Bird Box' 'Bright' 'Mudbound' 'Mule' 'Uncut' %}</h6>
+            <small>202{% cycle '1' '2' '3' '4' '2' '1' '3' '2' '4' '3' %} • 2h 10m</small>
+        </div>
+    </a>
+    {% endfor %}
+    {% endfor %}
+</div>
+{% endblock %}

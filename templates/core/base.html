@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Clone{% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #141414; color: #fff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        
+        /* NAVBAR */
+        .netflix-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            padding: 0 60px;
+            height: 68px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
+            transition: background 0.4s ease;
+        }
+        .netflix-nav.scrolled { background: #141414; }
+        .netflix-brand img { height: 35px; object-fit: contain; }
+        .netflix-brand { text-decoration: none; }
+        .netflix-nav-links { display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; }
+        .netflix-nav-links a { color: #e5e5e5; text-decoration: none; font-size: 14px; transition: color 0.2s; }
+        .netflix-nav-links a:hover, .netflix-nav-links a.active { color: #fff; font-weight: 600; }
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        /* SEARCH */
+        .nav-search-wrap { position: relative; }
+        .nav-search-form {
+            display: flex; align-items: center;
+            background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.6);
+            padding: 4px 12px; border-radius: 4px; transition: 0.3s;
+        }
+        .nav-search-form:focus-within { background: rgba(0,0,0,0.95); border-color: #fff; }
+        .nav-search-form button { background:none; border:none; color:#fff; padding: 0; cursor: pointer; }
+        .nav-search-form input {
+            background:none; border:none; color:#fff; outline:none;
+            padding-left:8px; font-size:14px; width: 160px;
+            transition: width 0.3s;
+        }
+        .nav-search-form:focus-within input { width: 240px; }
+        .nav-search-form input::placeholder { color: #aaa; }
+        .nav-avatar { width: 34px; height: 34px; border-radius: 4px; cursor: pointer; display: block; }
+        .profile-dropdown { position: relative; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+        .profile-dropdown .caret { color: #fff; font-size: 10px; transition: transform 0.3s; }
+        .profile-dropdown:hover .caret { transform: rotate(180deg); }
+        .profile-menu {
+            display: none; position: absolute; right: 0; top: 48px;
+            background: rgba(20,20,20,0.97); border: 1px solid #333;
+            min-width: 240px; border-radius: 4px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+            padding-top: 0;
+        }
+        /* Bridge gap so mouse can move from avatar to menu */
+        .profile-dropdown::after {
+            content: ''; position: absolute;
+            top: 100%; left: 0; right: 0; height: 12px;
+        }
+        .profile-dropdown:hover .profile-menu,
+        .profile-menu:hover { display: block; }
+        .profile-menu-header { padding: 14px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #333; }
+        .profile-menu-header img { width: 36px; height: 36px; border-radius: 4px; }
+        .profile-menu-header .user-name { font-size: 14px; font-weight: 600; color: #e5e5e5; }
+        .profile-menu-header .user-email { font-size: 11px; color: #aaa; margin-top: 2px; }
+        .profile-menu a, .profile-menu button {
+            display: flex; align-items: center; gap: 10px;
+            width: 100%; padding: 11px 16px; color: #e5e5e5;
+            text-decoration: none; font-size: 14px; background: none; border: none;
+            text-align: left; cursor: pointer; transition: background 0.15s;
+        }
+        .profile-menu a:hover, .profile-menu button:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .profile-menu .menu-icon { width: 16px; color: #aaa; }
+        .profile-menu hr { border-color: #333; margin: 4px 0; }
+        .profile-menu .sign-out { color: #aaa; font-size: 13px; justify-content: center; border-top: 1px solid #333; margin-top: 4px; }
+        .profile-menu .sign-out:hover { color: #fff; }
+        .btn-signin { background: #e50914; color: white; border: none; padding: 7px 18px; border-radius: 4px; font-size: 14px; font-weight: 600; text-decoration: none; }
+        .btn-signin:hover { background: #f40612; color: white; }
+        
+        /* MESSAGES */
+        .messages-container { position: fixed; top: 70px; right: 20px; z-index: 9999; min-width: 300px; }
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="netflix-nav" id="mainNav">
+        <a href="{% url 'core:home' %}" class="netflix-brand"><img src="{% static 'netflix.png' %}" alt="NETFLIX" style="height: 35px; object-fit: contain;"></a>
+        <ul class="netflix-nav-links d-none d-md-flex">
+            <li><a href="{% url 'core:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a></li>
+            <li><a href="{% url 'core:series' %}" class="{% if request.resolver_match.url_name == 'series' %}active{% endif %}">TV Shows</a></li>
+            <li><a href="{% url 'core:movies' %}" class="{% if request.resolver_match.url_name == 'movies' %}active{% endif %}">Movies</a></li>
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'core:my_list' %}" class="{% if request.resolver_match.url_name == 'my_list' %}active{% endif %}">My List</a></li>
+            {% endif %}
+        </ul>
+        <div class="nav-right">
+            <form action="{% url 'core:search' %}" method="get" class="nav-search-form">
+                <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <input type="text" name="q" placeholder="Titles, people, genres">
+            </form>
+            {% if user.is_authenticated %}
+                <div class="profile-dropdown">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png" alt="Profile" class="nav-avatar">
+                    <i class="fa-solid fa-caret-down caret"></i>
+                    <div class="profile-menu">
+                        <div class="profile-menu-header">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png" alt="Avatar">
+                            <div>
+                                <div class="user-name">{{ user.username }}</div>
+                                <div class="user-email">{{ user.email }}</div>
+                            </div>
+                        </div>
+                        <a href="{% url 'core:profile' %}"><i class="fa-solid fa-user menu-icon"></i> My Profile</a>
+                        <a href="{% url 'core:my_list' %}"><i class="fa-solid fa-list menu-icon"></i> My List</a>
+                        {% if user.is_staff or user.is_superuser %}
+                            <a href="{% url 'dashboard:home' %}"><i class="fa-solid fa-gauge menu-icon"></i> Dashboard</a>
+                        {% endif %}
+                        <hr>
+                        <form method="post" action="{% url 'account_logout' %}" style="margin:0;">
+                            {% csrf_token %}
+                            <button type="submit" class="sign-out"><i class="fa-solid fa-right-from-bracket"></i> Sign out of Netflix</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'account_login' %}" class="btn-signin">Sign In</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    <footer style="background: #141414; border-top: 1px solid #333; padding: 40px 60px; margin-top: 60px;">
+        <div class="row" style="color: #737373; font-size: 13px;">
+            <div class="col-12 mb-3">
+                <a href="https://www.facebook.com/netflix/" target="_blank" style="color:#fff;"><i class="fa-brands fa-facebook-f me-3" style="font-size: 20px; cursor:pointer;"></i></a>
+                <a href="https://www.instagram.com/netflix/" target="_blank" style="color:#fff;"><i class="fa-brands fa-instagram me-3" style="font-size: 20px; cursor:pointer;"></i></a>
+                <a href="https://twitter.com/netflix" target="_blank" style="color:#fff;"><i class="fa-brands fa-twitter me-3" style="font-size: 20px; cursor:pointer;"></i></a>
+                <a href="https://www.youtube.com/netflix" target="_blank" style="color:#fff;"><i class="fa-brands fa-youtube" style="font-size: 20px; cursor:pointer;"></i></a>
+            </div>
+            <div class="col-md-3 mb-2"><a href="https://www.netflix.com/browse/audio-description" target="_blank" style="color:#737373; text-decoration:none;">Audio Description</a></div>
+            <div class="col-md-3 mb-2"><a href="https://help.netflix.com/" target="_blank" style="color:#737373; text-decoration:none;">Help Centre</a></div>
+            <div class="col-md-3 mb-2"><a href="https://www.netflix.com/gift-cards" target="_blank" style="color:#737373; text-decoration:none;">Gift Cards</a></div>
+            <div class="col-md-3 mb-2"><a href="https://media.netflix.com/" target="_blank" style="color:#737373; text-decoration:none;">Media Centre</a></div>
+            <div class="col-md-3 mb-2"><a href="https://ir.netflix.com/" target="_blank" style="color:#737373; text-decoration:none;">Investor Relations</a></div>
+            <div class="col-md-3 mb-2"><a href="https://jobs.netflix.com/" target="_blank" style="color:#737373; text-decoration:none;">Jobs</a></div>
+            <div class="col-md-3 mb-2"><a href="https://help.netflix.com/legal/termsofuse" target="_blank" style="color:#737373; text-decoration:none;">Terms of Use</a></div>
+            <div class="col-md-3 mb-2"><a href="https://help.netflix.com/legal/privacy" target="_blank" style="color:#737373; text-decoration:none;">Privacy</a></div>
+            <div class="col-md-3 mb-2"><a href="https://help.netflix.com/legal/privacy#cookies" target="_blank" style="color:#737373; text-decoration:none;">Cookie Preferences</a></div>
+            <div class="col-md-3 mb-2"><a href="https://help.netflix.com/legal/corpinfo" target="_blank" style="color:#737373; text-decoration:none;">Corporate Information</a></div>
+            <div class="col-12 mt-3" style="color:#737373;">© 2024 Netflix Clone — For Educational Purpose</div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.addEventListener('scroll', () => {
+            document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Auto dismiss messages after 3 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.messages-container .alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 3000);
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

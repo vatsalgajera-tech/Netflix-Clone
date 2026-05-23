@@ -1,0 +1,45 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="text-white mb-0 fw-bold">Users</h4>
+</div>
+
+<div class="dark-table">
+    <div class="table-responsive">
+        <table class="table table-borderless align-middle">
+            <thead>
+                <tr>
+                    <th style="padding-left:0">Username</th>
+                    <th>Email</th>
+                    <th>Password (Hashed)</th>
+                    <th>Staff</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td style="padding-left:0; color:var(--text-white) !important; font-weight:500;">{{ u.username }}</td>
+                    <td>{{ u.email }}</td>
+                    <td style="font-family: monospace; font-size: 11px; color: #888;" title="{{ u.password }}">
+                        {{ u.password|truncatechars:20 }}
+                    </td>
+                    <td>{% if u.is_staff %}<span style="color:#e50914;">Admin</span>{% else %}User{% endif %}</td>
+                    <td>{% if u.is_active %}<span style="color:#46d369;">● Active</span>{% else %}<span style="color:#aaa;">● Inactive</span>{% endif %}</td>
+                    <td>{{ u.date_joined|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="/admin/users/customuser/{{ u.pk }}/change/" class="btn btn-action-edit"><i class="fa-solid fa-pen"></i></a>
+                        <a href="/admin/users/customuser/{{ u.pk }}/delete/" class="btn btn-action-delete"><i class="fa-solid fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" style="padding-left:0; color:#666; padding-top:30px;">No users found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

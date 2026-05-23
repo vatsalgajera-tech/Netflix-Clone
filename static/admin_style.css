@@ -1,0 +1,264 @@
+/* Global Variables */
+:root {
+    --netflix-red: #E50914;
+    --dark-bg: #F4F6F8; /* Light gray background */
+    --card-bg: #FFFFFF; /* White cards */
+    --text-color: #4B5563; /* Standard text */
+    --text-white: #111827; /* Dark text for headings (previously white) */
+    --border-color: #E5E7EB; /* Light border */
+    --input-bg: #FFFFFF;
+}
+
+/* Base Styles */
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-color);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, .text-white {
+    color: var(--text-white) !important;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background-color: #ffffff;
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    z-index: 1030;
+}
+
+/* Scrollbar for sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+/* Adjust Main Content to not go under the fixed sidebar */
+.main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+}
+
+.sidebar .nav-link {
+    color: #000000;
+    padding: 12px 20px;
+    margin-bottom: 5px;
+    font-size: 14.5px;
+    font-weight: 500;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.sidebar .nav-link i {
+    width: 25px;
+    font-size: 16px;
+}
+
+.sidebar .nav-link:hover {
+    color: #000000;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sidebar .nav-link.active {
+    background-color: rgba(229, 9, 20, 0.1);
+    color: var(--netflix-red);
+    font-weight: 600;
+    border-left: 3px solid var(--netflix-red);
+    border-radius: 0 4px 4px 0;
+}
+
+.sidebar-brand {
+    color: var(--netflix-red);
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: 1px;
+    padding: 20px;
+    text-transform: uppercase;
+}
+
+/* Top Navbar */
+.top-navbar {
+    background-color: var(--dark-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+/* Cards (Statistics) */
+.stat-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+    border-color: #3f3f3f;
+}
+
+.stat-card .title {
+    color: var(--text-color);
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.stat-card .value {
+    color: var(--text-white);
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.stat-card .link {
+    color: #4a90e2; /* Blueish link color from screenshot */
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.stat-card .link:hover {
+    text-decoration: underline;
+}
+
+/* Tables */
+.dark-table {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.table {
+    color: var(--text-color);
+    margin-bottom: 0;
+}
+
+.table th {
+    color: var(--text-white);
+    border-bottom: 1px solid var(--border-color) !important;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 15px 10px;
+}
+
+.table td {
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 10px;
+    vertical-align: middle;
+    font-size: 14px;
+    color: var(--text-white) !important;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+/* Buttons */
+.btn-netflix {
+    background-color: var(--netflix-red);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.btn-netflix:hover {
+    background-color: #f40612;
+    color: white;
+}
+
+.btn-action-edit {
+    background-color: #0d6efd;
+    color: white;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+}
+
+.btn-action-delete {
+    background-color: var(--netflix-red);
+    color: white;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    margin-left: 5px;
+}
+
+/* Dropdown overriding */
+.bg-dark {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color);
+}
+.dropdown-item.text-white {
+    color: var(--text-color) !important;
+}
+.dropdown-item.text-white:hover {
+    background-color: rgba(0,0,0,0.05) !important;
+    color: var(--text-white) !important;
+}
+
+/* Login Page Specific */
+.login-page {
+    height: 100vh;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/static/background_netflix.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    background-color: var(--card-bg);
+    padding: 40px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 450px;
+}
+
+.login-input {
+    background-color: var(--input-bg) !important;
+    border: none !important;
+    color: white !important;
+    padding: 15px !important;
+    border-radius: 4px !important;
+}
+
+.login-input:focus {
+    box-shadow: none !important;
+    background-color: #444 !important;
+}
+
+.login-label {
+    color: var(--text-color);
+    font-size: 13px;
+    margin-bottom: 5px;
+}

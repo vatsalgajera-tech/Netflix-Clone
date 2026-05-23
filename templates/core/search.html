@@ -1,0 +1,85 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} - Search{% endblock %}
+
+{% block styles %}
+<style>
+.search-page { padding: 120px 60px 60px; min-height: 80vh; }
+.search-header { margin-bottom: 40px; }
+.search-header h2 { font-size: 2rem; font-weight: 700; color: #e5e5e5; }
+.search-header span { color: #aaa; font-weight: 400; }
+.movies-grid { padding: 30px 60px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.movie-card {
+    border-radius: 4px; overflow: hidden; cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s; position: relative;
+    text-decoration: none; display: block;
+}
+.movie-card:hover { transform: scale(1.06); box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 10; }
+.movie-card img { width: 100%; height: 280px; object-fit: cover; display: block; }
+.movie-card .card-body { background: #1f1f1f; padding: 10px; color: #e5e5e5; }
+.movie-card .card-body h6 { font-size: 13px; font-weight: 600; margin: 0 0 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.movie-card .card-body small { color: #aaa; font-size: 11px; }
+.movie-card .card-hover {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+}
+.movie-card:hover .card-hover { opacity: 1; }
+.card-hover .play-btn {
+    width: 50px; height: 50px; background: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; color: #000;
+}
+.no-results { text-align: center; padding: 80px 20px; color: #aaa; }
+.no-results i { font-size: 60px; margin-bottom: 20px; color: #555; }
+.no-results h4 { color: #e5e5e5; margin-bottom: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-page">
+    <div class="search-header">
+        {% if query %}
+            <h2>Search Results for <span>"{{ query }}"</span></h2>
+        {% else %}
+            <h2>Search Content</h2>
+        {% endif %}
+    </div>
+
+    {% if results %}
+        <div class="movies-grid">
+            {% for item in results %}
+            <a href="{% url 'core:detail' item.pk %}" class="movie-card">
+                {% if item.poster_url %}
+                    <img src="{{ item.poster_url }}" alt="{{ item.title }}">
+                {% elif item.poster_image %}
+                    <img src="{{ item.poster_image.url }}" alt="{{ item.title }}">
+                {% else %}
+                    <img src="{% static 'POSTER/download (1).jpg' %}" alt="{{ item.title }}">
+                {% endif %}
+                <div class="card-hover">
+                    <div class="play-btn"><i class="fa-solid fa-play"></i></div>
+                </div>
+                <div class="card-body">
+                    <h6>{{ item.title }}</h6>
+                    <small>{{ item.release_year }} • {{ item.content_type }}</small>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        {% if query %}
+        <div class="no-results">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <h4>No matches found for "{{ query }}"</h4>
+            <p>Suggestions:</p>
+            <ul style="list-style:none; padding:0;">
+                <li>Try different keywords</li>
+                <li>Looking for a movie or TV show?</li>
+                <li>Try using a movie, TV show title, an actor or director</li>
+            </ul>
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

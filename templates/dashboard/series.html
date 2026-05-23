@@ -1,0 +1,50 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="text-white mb-0 fw-bold">Series</h4>
+    <a href="/admin/core/content/add/" class="btn btn-netflix">Add Series</a>
+</div>
+
+<div class="dark-table">
+    <div class="table-responsive">
+        <table class="table table-borderless align-middle">
+            <thead>
+                <tr>
+                    <th style="padding-left:0">Poster</th>
+                    <th>Title</th>
+                    <th>Seasons</th>
+                    <th>Release Year</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for show in series %}
+                <tr>
+                    <td style="padding-left:0">
+                        {% if show.poster_url %}
+                            <img src="{{ show.poster_url }}" style="width:40px; height:60px; object-fit:cover; border-radius:4px;">
+                        {% elif show.poster_image %}
+                            <img src="{{ show.poster_image.url }}" style="width:40px; height:60px; object-fit:cover; border-radius:4px;">
+                        {% else %}
+                            <div style="width:40px; height:60px; background:#333; border-radius:4px; display:flex; align-items:center; justify-content:center; color:#666; font-size:11px;">N/A</div>
+                        {% endif %}
+                    </td>
+                    <td style=" font-weight:500;">{{ show.title }}</td>
+                    <td>{{ show.duration }}</td>
+                    <td>{{ show.release_year }}</td>
+                    <td>{% if show.is_active %}<span style="color:#46d369;">Active</span>{% else %}<span style="color:#aaa;">Inactive</span>{% endif %}</td>
+                    <td>
+                        <a href="/admin/core/content/{{ show.pk }}/change/" class="btn btn-action-edit"><i class="fa-solid fa-pen"></i></a>
+                        <a href="/admin/core/content/{{ show.pk }}/delete/" class="btn btn-action-delete"><i class="fa-solid fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" style="padding-left:0; color:#666; padding-top:30px; text-align:center;">No series found. <a href="/admin/core/content/add/" style="color:#e50914;">Add one now</a>.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

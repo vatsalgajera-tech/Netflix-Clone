@@ -1,0 +1,134 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} - {{ content.title }}{% endblock %}
+
+{% block styles %}
+<style>
+.detail-hero {
+    height: 70vh; background-size: cover; background-position: center top;
+    position: relative; display: flex; align-items: flex-end; padding-bottom: 60px;
+}
+.detail-overlay {
+    position: absolute; top:0; left:0; width:100%; height:100%;
+    background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 60%),
+                linear-gradient(to top, rgba(20,20,20,1) 0%, transparent 30%);
+}
+.detail-content { position: relative; z-index: 1; padding-left: 60px; max-width: 650px; }
+.detail-badge { background: #e50914; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 2px; padding: 3px 10px; border-radius: 2px; display: inline-block; margin-bottom: 12px; }
+.detail-title { font-size: 3rem; font-weight: 700; margin-bottom: 12px; }
+.detail-meta { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+.meta-match { color: #46d369; font-weight: 700; }
+.meta-year { color: #ddd; font-size: 14px; }
+.meta-badge { border: 1px solid #aaa; padding: 1px 8px; font-size: 12px; border-radius: 2px; color: #ddd; }
+.meta-duration { color: #ddd; font-size: 14px; }
+.detail-desc { font-size: 15px; line-height: 1.7; color: #ddd; margin-bottom: 25px; }
+.detail-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-play-main {
+    background: white; color: #000; border: none; padding: 12px 28px;
+    font-size: 16px; font-weight: 700; border-radius: 4px;
+    display: flex; align-items: center; gap: 8px; text-decoration: none;
+    transition: background 0.2s;
+}
+.btn-play-main:hover { background: rgba(255,255,255,0.75); color: #000; }
+.btn-mylist {
+    background: rgba(109,109,110,0.7); color: #fff; border: none; padding: 12px 28px;
+    font-size: 16px; font-weight: 700; border-radius: 4px;
+    display: flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none;
+}
+.btn-mylist:hover { background: rgba(109,109,110,0.4); color: #fff; }
+.detail-info { padding: 30px 60px; }
+.cast-section h5, .related-section h4 { margin-bottom: 15px; color: #e5e5e5; }
+.cast-section p, .related-section p { color: #aaa; font-size: 14px; line-height: 1.7; }
+.detail-sidebar { text-align: right; padding: 30px 60px 30px 0; }
+.detail-sidebar .genre-list { color: #aaa; font-size: 14px; margin-bottom: 10px; }
+.detail-sidebar .genre-list span { color: #fff; }
+.related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin-top: 20px; }
+.related-card { border-radius: 4px; overflow: hidden; text-decoration: none; display: block; transition: transform 0.3s; }
+.related-card:hover { transform: scale(1.05); }
+.related-card img { width: 100%; height: 220px; object-fit: cover; }
+.related-card .rc-title { background: #1f1f1f; padding: 8px; font-size: 12px; color: #e5e5e5; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if content.poster_url %}
+<div class="detail-hero" style="background-image: url('{{ content.poster_url }}');">
+{% elif content.poster_image %}
+<div class="detail-hero" style="background-image: url('{{ content.poster_image.url }}');">
+{% else %}
+<div class="detail-hero" style="background-image: url('{% static "background_netflix.jpg" %}');">
+{% endif %}
+    <div class="detail-overlay"></div>
+    <div class="detail-content">
+        <div class="detail-badge">{{ content.content_type|upper }}</div>
+        <h1 class="detail-title">{{ content.title }}</h1>
+        <div class="detail-meta">
+            <span class="meta-match">97% Match</span>
+            <span class="meta-year">{{ content.release_year }}</span>
+            <span class="meta-badge">{{ content.rating|default:"PG-13" }}</span>
+            <span class="meta-duration">{{ content.duration }}</span>
+        </div>
+        <p class="detail-desc">{{ content.description }}</p>
+        <div class="detail-actions">
+            <a href="{% url 'core:watch' content.pk %}" class="btn-play-main"><i class="fa-solid fa-play"></i> Play</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'core:my_list_toggle' content.pk %}" class="btn-mylist">
+                    {% if in_list %}
+                        <i class="fa-solid fa-check"></i> Remove from List
+                    {% else %}
+                        <i class="fa-solid fa-plus"></i> My List
+                    {% endif %}
+                </a>
+            {% else %}
+                <a href="{% url 'account_login' %}" class="btn-mylist"><i class="fa-solid fa-plus"></i> My List</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid" style="padding: 0 60px; margin-top: 30px;">
+    <div class="row">
+        <div class="col-md-8">
+            <p style="color: #ddd; font-size: 15px; line-height: 1.8; margin-bottom: 20px;">{{ content.description }}</p>
+            {% if reviews %}
+            <h5 style="color: #e5e5e5; margin-bottom: 15px;">Reviews</h5>
+            {% for review in reviews %}
+            <div style="background: #1f1f1f; padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <strong style="color: #e5e5e5;">{{ review.user }}</strong>
+                    <span style="color: #e50914;">{{ review.rating }}★</span>
+                </div>
+                <p style="color: #aaa; font-size: 14px; margin: 0;">{{ review.text }}</p>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        <div class="col-md-4" style="color: #aaa; font-size: 14px;">
+            <p><strong style="color:#fff;">Category: </strong>{{ content.category|default:"N/A" }}</p>
+            <p><strong style="color:#fff;">Genres: </strong>
+                {% for genre in content.genres.all %}{{ genre.name }}{% if not forloop.last %}, {% endif %}{% empty %}N/A{% endfor %}
+            </p>
+            <p><strong style="color:#fff;">Language: </strong>{{ content.language }}</p>
+            <p><strong style="color:#fff;">Year: </strong>{{ content.release_year }}</p>
+            <p><strong style="color:#fff;">Duration: </strong>{{ content.duration }}</p>
+        </div>
+    </div>
+
+    {% if related %}
+    <div style="margin-top: 30px; padding-bottom: 40px;">
+        <h4 style="color: #e5e5e5; margin-bottom: 15px;">More Like This</h4>
+        <div class="related-grid">
+            {% for item in related %}
+            <a href="{% url 'core:detail' item.pk %}" class="related-card">
+                {% if item.poster_url %}<img src="{{ item.poster_url }}" alt="{{ item.title }}">
+                {% elif item.poster_image %}<img src="{{ item.poster_image.url }}" alt="{{ item.title }}">
+                {% else %}<img src="{% static 'POSTER/download (1).jpg' %}" alt="{{ item.title }}">{% endif %}
+                <div class="rc-title">{{ item.title }}</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

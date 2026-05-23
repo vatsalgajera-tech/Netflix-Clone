@@ -1,0 +1,61 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} - Watch {{ content.title }}{% endblock %}
+
+{% block styles %}
+<style>
+body { background: #000; }
+.watch-container {
+    width: 100vw; height: 100vh; background: #000;
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.watch-topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+    padding: 20px 40px; display: flex; align-items: center; gap: 15px;
+}
+.back-btn { color: #fff; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.back-btn:hover { color: #e5e5e5; }
+.watch-title { font-size: 16px; font-weight: 600; color: #fff; }
+.video-area { flex: 1; display: flex; align-items: center; justify-content: center; }
+video { width: 100%; height: 100vh; object-fit: contain; }
+iframe { width: 100vw; height: 100vh; border: none; }
+.no-video {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100vh; color: #aaa; text-align: center;
+}
+.no-video h2 { font-size: 2rem; color: #555; margin-bottom: 15px; }
+.no-video p { font-size: 15px; margin-bottom: 25px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="watch-container">
+    <div class="watch-topbar">
+        <a href="{% url 'core:detail' content.pk %}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
+        <span style="color: #555;">|</span>
+        <div class="watch-title">{{ content.title }}</div>
+    </div>
+
+    {% if content.video_file %}
+        <video controls autoplay>
+            <source src="{{ content.video_file.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    {% elif content.video_url %}
+        <iframe src="{{ content.video_url }}" allowfullscreen allow="autoplay; fullscreen"></iframe>
+    {% else %}
+        <div class="no-video">
+            <i class="fa-solid fa-film" style="font-size: 80px; color: #333; margin-bottom: 25px;"></i>
+            <h2>Content Not Available</h2>
+            <p>The video for <strong style="color: #fff;">{{ content.title }}</strong> is not yet uploaded.</p>
+            <a href="{% url 'core:detail' content.pk %}" style="background: #e50914; color: #fff; padding: 12px 30px; border-radius: 4px; text-decoration: none; font-weight: 700;">
+                <i class="fa-solid fa-arrow-left me-2"></i> Go Back
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

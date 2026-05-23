@@ -1,0 +1,104 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} - TV Shows{% endblock %}
+
+{% block styles %}
+<style>
+.page-hero {
+    height: 40vh; display: flex; align-items: flex-end; padding: 0 60px 30px;
+    border-bottom: 3px solid #e50914; position: relative; overflow: hidden;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: url('{% static "background_netflix.jpg" %}') center/cover no-repeat;
+    opacity: 0.15; filter: blur(2px);
+}
+.page-title { font-size: 3rem; font-weight: 800; position: relative; z-index: 1; }
+.filter-bar {
+    padding: 20px 60px; background: #181818; border-bottom: 1px solid #2a2a2a;
+    display: flex; align-items: center; gap: 15px; flex-wrap: wrap;
+}
+.filter-bar select {
+    background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 8px 15px;
+    border-radius: 4px; font-size: 14px; cursor: pointer;
+}
+.series-grid { padding: 30px 60px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.series-card {
+    border-radius: 4px; overflow: hidden; cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s; position: relative;
+    text-decoration: none; display: block;
+}
+.series-card:hover { transform: scale(1.06); box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 10; }
+.series-card img { width: 100%; height: 280px; object-fit: cover; display: block; }
+.series-card .card-body { background: #1f1f1f; padding: 10px; color: #e5e5e5; }
+.series-card .card-body h6 { font-size: 13px; font-weight: 600; margin: 0 0 3px; }
+.series-card .card-body small { color: #aaa; font-size: 11px; }
+.series-card .card-hover {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+}
+.series-card:hover .card-hover { opacity: 1; }
+.card-hover .play-btn {
+    width: 50px; height: 50px; background: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; color: #000;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+    <div>
+        <div style="color: #e50914; font-size: 13px; font-weight: 700; letter-spacing: 2px; margin-bottom: 8px;">EXPLORE</div>
+        <h1 class="page-title">TV Shows</h1>
+    </div>
+</div>
+
+<div class="filter-bar">
+    <span style="color: #aaa; font-size: 14px;">Filter by:</span>
+    <form method="get" style="display:flex; gap:10px; align-items:center;">
+        <select name="category" onchange="this.form.submit()">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    {% if selected_category %}
+        <a href="{% url 'core:series' %}" style="color: #e50914; font-size: 13px; text-decoration: none;">✕ Clear</a>
+    {% endif %}
+    <span style="color: #aaa; font-size: 13px; margin-left: auto;">{{ series|length }} shows</span>
+</div>
+
+<div class="series-grid">
+    {% for show in series %}
+    <a href="{% url 'core:detail' show.pk %}" class="series-card">
+        {% if show.poster_url %}<img src="{{ show.poster_url }}" alt="{{ show.title }}">
+        {% elif show.poster_image %}<img src="{{ show.poster_image.url }}" alt="{{ show.title }}">
+        {% else %}<img src="{% static 'POSTER/38_ Money Heist - S4.jpg' %}" alt="{{ show.title }}">{% endif %}
+        <div class="card-hover"><div class="play-btn"><i class="fa-solid fa-play"></i></div></div>
+        <div class="card-body">
+            <h6>{{ show.title }}</h6>
+            <small>{{ show.release_year }} • {{ show.duration }}</small>
+        </div>
+    </a>
+    {% empty %}
+    {% for i in "123456"|make_list %}
+    <a href="#" class="series-card">
+        {% if forloop.counter == 1 %}<img src="{% static 'POSTER/38_ Money Heist - S4.jpg' %}" alt="Money Heist">
+        {% elif forloop.counter == 2 %}<img src="{% static 'POSTER/SWEET HOME (Poster).jpg' %}" alt="Sweet Home">
+        {% elif forloop.counter == 3 %}<img src="{% static 'POSTER/Dark TV poster #Dark TV series posters #scififantasy #Superheroes #animation #MovieBuff #MovieReview #movietalk #movieposters #movietwit # tvseries #Tv.jpg' %}" alt="Dark">
+        {% elif forloop.counter == 4 %}<img src="{% static 'POSTER/HellBound.jpg' %}" alt="HellBound">
+        {% elif forloop.counter == 5 %}<img src="{% static 'POSTER/Netflix One Piece.jpg' %}" alt="One Piece">
+        {% else %}<img src="{% static 'POSTER/enola holmes 2.jpg' %}" alt="Show">{% endif %}
+        <div class="card-hover"><div class="play-btn"><i class="fa-solid fa-play"></i></div></div>
+        <div class="card-body">
+            <h6>{% cycle 'Money Heist' 'Sweet Home' 'Dark' 'Hellbound' 'One Piece' 'Enola Holmes' %}</h6>
+            <small>{% cycle '2020' '2021' '2019' '2021' '2023' '2022' %} • 3 Seasons</small>
+        </div>
+    </a>
+    {% endfor %}
+    {% endfor %}
+</div>
+{% endblock %}

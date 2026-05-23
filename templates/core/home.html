@@ -1,0 +1,397 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} - Home{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════
+   HERO SLIDER
+══════════════════════════════════ */
+.hero-slider { position: relative; height: 95vh; overflow: hidden; }
+.slide {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center top;
+    opacity: 0; transition: opacity 1s ease;
+    display: flex; align-items: flex-end;
+    padding-bottom: 120px;
+}
+.slide.active { opacity: 1; z-index: 2; }
+.slide-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%),
+                linear-gradient(to top, #141414 0%, transparent 30%);
+}
+.slide-content {
+    position: relative; z-index: 3;
+    padding-left: 5%; max-width: 600px;
+}
+.slide-badge {
+    display: inline-block; background: #e50914; color: #fff;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 3px;
+    padding: 4px 12px; border-radius: 2px; margin-bottom: 16px;
+}
+.slide-title {
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 800; line-height: 1.05;
+    margin-bottom: 16px;
+    text-shadow: 2px 4px 16px rgba(0,0,0,0.6);
+}
+.slide-meta {
+    display: flex; align-items: center; gap: 14px;
+    font-size: 0.95rem; margin-bottom: 16px;
+}
+.slide-meta .match { color: #46d369; font-weight: 700; }
+.slide-meta .rating-badge {
+    border: 1px solid rgba(255,255,255,0.5);
+    padding: 1px 6px; border-radius: 3px; font-size: 0.8rem; color: #ddd;
+}
+.slide-desc {
+    font-size: 1rem; line-height: 1.6; color: #ddd;
+    margin-bottom: 28px; max-width: 480px;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.slide-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-play {
+    background: #fff; color: #000; border: none;
+    padding: 12px 30px; font-size: 1.1rem; font-weight: 700;
+    border-radius: 4px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; transition: background 0.2s;
+}
+.btn-play:hover { background: rgba(255,255,255,0.75); color: #000; }
+.btn-more {
+    background: rgba(109,109,110,0.7); color: #fff; border: none;
+    padding: 12px 28px; font-size: 1.1rem; font-weight: 700;
+    border-radius: 4px; cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; transition: background 0.2s;
+    backdrop-filter: blur(4px);
+}
+.btn-more:hover { background: rgba(109,109,110,0.4); color: #fff; }
+
+/* Slider indicators */
+.slider-dots {
+    position: absolute; bottom: 120px; right: 5%;
+    display: flex; flex-direction: column; gap: 10px; z-index: 10;
+}
+.slider-dot {
+    width: 4px; height: 40px; background: rgba(255,255,255,0.3);
+    border: none; cursor: pointer; transition: 0.3s; padding: 0;
+}
+.slider-dot.active { background: #fff; }
+
+/* Slider arrows */
+.slider-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    z-index: 10; background: rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.4);
+    color: #fff; width: 50px; height: 50px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1.3rem; opacity: 0; transition: 0.3s;
+}
+.hero-slider:hover .slider-arrow { opacity: 1; }
+.slider-arrow:hover { background: rgba(0,0,0,0.7); border-color: #fff; }
+.arrow-prev { left: 3%; }
+.arrow-next { right: 3%; }
+
+/* ══════════════════════════════════
+   CONTENT ROWS
+══════════════════════════════════ */
+.rows-section { margin-top: 0; position: relative; z-index: 5; padding-bottom: 60px; background: #141414; }
+.content-row { margin-bottom: 3vw; }
+.row-title-bar {
+    display: flex; align-items: baseline; gap: 16px;
+    padding: 0 4% 10px;
+}
+.row-title {
+    font-size: clamp(14px, 1.5vw, 22px);
+    font-weight: 700; color: #e5e5e5;
+    cursor: default;
+}
+.row-see-all {
+    color: #54b9c5; font-size: 0.8vw; text-decoration: none;
+    opacity: 0; transition: 0.3s; display: flex; align-items: center; gap: 5px;
+}
+.content-row:hover .row-see-all { opacity: 1; }
+.row-see-all:hover { text-decoration: underline; color: #54b9c5; }
+
+/* Row carousel */
+.row-container { position: relative; }
+.posters-grid {
+    display: flex; gap: 5px;
+    padding: 0 4% 20px;
+    overflow-x: auto; overflow-y: visible;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+}
+.posters-grid::-webkit-scrollbar { display: none; }
+
+/* Scroll buttons */
+.scroll-btn {
+    position: absolute; top: 0; bottom: 20px; width: 4%;
+    background: rgba(20,20,20,0.7); border: none; color: #fff;
+    font-size: 2vw; cursor: pointer; z-index: 20;
+    display: none; align-items: center; justify-content: center;
+    opacity: 0.8; transition: 0.2s;
+}
+.row-container:hover .scroll-btn { display: flex; }
+.scroll-btn:hover { background: rgba(20,20,20,0.95); opacity: 1; }
+.scroll-left { left: 0; }
+.scroll-right { right: 0; }
+
+/* Poster card */
+.poster-card {
+    flex: 0 0 calc(100% / 6 - 5px);
+    min-width: 0;
+    border-radius: 4px; overflow: visible;
+    cursor: pointer; position: relative;
+    text-decoration: none;
+    transition: transform 0.35s ease, z-index 0s 0.35s;
+}
+.poster-card:hover {
+    transform: scale(1.18);
+    z-index: 20;
+    transition: transform 0.35s ease, z-index 0s;
+}
+.poster-card img {
+    width: 100%; aspect-ratio: 2/3;
+    object-fit: cover; display: block;
+    border-radius: 4px;
+}
+
+/* Hover info card */
+.poster-info {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: #181818;
+    border-radius: 0 0 4px 4px;
+    padding: 12px;
+    opacity: 0; transform: translateY(0);
+    transition: opacity 0.3s; pointer-events: none;
+}
+.poster-card:hover .poster-info { opacity: 1; pointer-events: auto; }
+.poster-info .pi-title {
+    font-size: 0.85vw; font-weight: 700; color: #fff;
+    margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.poster-info .pi-meta { font-size: 0.7vw; color: #46d369; margin-bottom: 5px; }
+.poster-info .pi-tags { display: flex; gap: 6px; font-size: 0.65vw; color: #aaa; flex-wrap: wrap; }
+.poster-info .pi-actions { display: flex; gap: 6px; margin-bottom: 8px; }
+.pi-actions a {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none; transition: 0.2s; font-size: 0.75vw;
+}
+.pi-play { background: #fff; color: #000 !important; border: 2px solid #fff; }
+.pi-play:hover { background: rgba(255,255,255,0.8) !important; }
+.pi-info { background: transparent; color: #fff !important; border: 2px solid rgba(255,255,255,0.5); }
+.pi-info:hover { border-color: #fff !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════ HERO SLIDER ═══════════ -->
+<div class="hero-slider" id="heroSlider">
+    {% if slider_items %}
+        {% for item in slider_items %}
+        <div class="slide {% if forloop.first %}active{% endif %}"
+             style="background-image: url('{{ item.poster_url }}');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <div class="slide-badge">{% if item.content_type == 'Movie' %}FILM{% else %}SERIES{% endif %}</div>
+                <h1 class="slide-title">{{ item.title }}</h1>
+                <div class="slide-meta">
+                    <span class="match">97% Match</span>
+                    <span>{{ item.release_year }}</span>
+                    <span class="rating-badge">{{ item.rating }}</span>
+                    <span>{{ item.duration }}</span>
+                </div>
+                <p class="slide-desc">{{ item.description }}</p>
+                <div class="slide-actions">
+                    <a href="{% url 'core:watch' item.pk %}" class="btn-play">
+                        <i class="fa-solid fa-play"></i> Play
+                    </a>
+                    <a href="{% url 'core:detail' item.pk %}" class="btn-more">
+                        <i class="fa-solid fa-circle-info"></i> More Info
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="slide active" style="background-image: url('{% static "background_netflix.jpg" %}');">
+        <div class="slide-overlay"></div>
+        <div class="slide-content">
+            <div class="slide-badge">NETFLIX ORIGINAL</div>
+            <h1 class="slide-title">Watch Anywhere.<br>Cancel Anytime.</h1>
+            <div class="slide-meta"><span class="match">New</span><span>2024</span><span class="rating-badge">TV-MA</span></div>
+            <p class="slide-desc">Unlimited movies, TV shows and more. Watch anywhere. Cancel anytime.</p>
+            <div class="slide-actions">
+                <a href="{% url 'core:movies' %}" class="btn-play"><i class="fa-solid fa-play"></i> Explore</a>
+                <a href="{% url 'core:series' %}" class="btn-more"><i class="fa-solid fa-circle-info"></i> TV Shows</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Arrow controls -->
+    <button class="slider-arrow arrow-prev" id="prevSlide"><i class="fa-solid fa-chevron-left"></i></button>
+    <button class="slider-arrow arrow-next" id="nextSlide"><i class="fa-solid fa-chevron-right"></i></button>
+
+    <!-- Dot indicators -->
+    <div class="slider-dots" id="sliderDots">
+        {% for item in slider_items %}
+        <button class="slider-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></button>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ═══════════ CONTENT ROWS ═══════════ -->
+<div class="rows-section">
+
+    <!-- TRENDING NOW -->
+    <div class="content-row">
+        <div class="row-title-bar">
+            <span class="row-title">Trending Now</span>
+            <a href="{% url 'core:movies' %}" class="row-see-all">Explore All <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+        <div class="row-container">
+            <button class="scroll-btn scroll-left"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="posters-grid">
+                {% for item in trending %}
+                <a href="{% url 'core:detail' item.pk %}" class="poster-card">
+                    <img src="{{ item.poster_url }}" alt="{{ item.title }}"
+                         onerror="this.src='{% static "POSTER/download (1).jpg" %}'">
+                    <div class="poster-info">
+                        <div class="pi-actions">
+                            <a href="{% url 'core:watch' item.pk %}" class="pi-play"><i class="fa-solid fa-play"></i></a>
+                            <a href="{% url 'core:detail' item.pk %}" class="pi-info"><i class="fa-solid fa-chevron-down"></i></a>
+                        </div>
+                        <div class="pi-title">{{ item.title }}</div>
+                        <div class="pi-meta">97% Match &nbsp; {{ item.release_year }}</div>
+                        <div class="pi-tags">
+                            <span>{{ item.content_type }}</span>
+                            {% for g in item.genres.all|slice:":2" %}<span>{{ g.name }}</span>{% endfor %}
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            <button class="scroll-btn scroll-right"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- POPULAR MOVIES -->
+    <div class="content-row">
+        <div class="row-title-bar">
+            <span class="row-title">Popular Movies</span>
+            <a href="{% url 'core:movies' %}" class="row-see-all">Explore All <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+        <div class="row-container">
+            <button class="scroll-btn scroll-left"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="posters-grid">
+                {% for item in movies %}
+                <a href="{% url 'core:detail' item.pk %}" class="poster-card">
+                    <img src="{{ item.poster_url }}" alt="{{ item.title }}"
+                         onerror="this.src='{% static "POSTER/download (1).jpg" %}'">
+                    <div class="poster-info">
+                        <div class="pi-actions">
+                            <a href="{% url 'core:watch' item.pk %}" class="pi-play"><i class="fa-solid fa-play"></i></a>
+                            <a href="{% url 'core:detail' item.pk %}" class="pi-info"><i class="fa-solid fa-chevron-down"></i></a>
+                        </div>
+                        <div class="pi-title">{{ item.title }}</div>
+                        <div class="pi-meta">95% Match &nbsp; {{ item.release_year }}</div>
+                        <div class="pi-tags"><span>Movie</span>{% for g in item.genres.all|slice:":2" %}<span>{{ g.name }}</span>{% endfor %}</div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            <button class="scroll-btn scroll-right"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- TV SHOWS -->
+    <div class="content-row">
+        <div class="row-title-bar">
+            <span class="row-title">TV Shows</span>
+            <a href="{% url 'core:series' %}" class="row-see-all">Explore All <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+        <div class="row-container">
+            <button class="scroll-btn scroll-left"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="posters-grid">
+                {% for item in series %}
+                <a href="{% url 'core:detail' item.pk %}" class="poster-card">
+                    <img src="{{ item.poster_url }}" alt="{{ item.title }}"
+                         onerror="this.src='{% static "POSTER/Netflix One Piece.jpg" %}'">
+                    <div class="poster-info">
+                        <div class="pi-actions">
+                            <a href="{% url 'core:watch' item.pk %}" class="pi-play"><i class="fa-solid fa-play"></i></a>
+                            <a href="{% url 'core:detail' item.pk %}" class="pi-info"><i class="fa-solid fa-chevron-down"></i></a>
+                        </div>
+                        <div class="pi-title">{{ item.title }}</div>
+                        <div class="pi-meta">New &nbsp; {{ item.release_year }}</div>
+                        <div class="pi-tags"><span>Series</span>{% for g in item.genres.all|slice:":2" %}<span>{{ g.name }}</span>{% endfor %}</div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            <button class="scroll-btn scroll-right"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ═══ HERO SLIDER ═══
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.slider-dot');
+let current = 0;
+let timer;
+
+function goTo(n) {
+    slides[current].classList.remove('active');
+    dots[current] && dots[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots[current] && dots[current].classList.add('active');
+    resetTimer();
+}
+
+function resetTimer() {
+    clearInterval(timer);
+    timer = setInterval(() => goTo(current + 1), 6000);
+}
+
+document.getElementById('prevSlide')?.addEventListener('click', () => goTo(current - 1));
+document.getElementById('nextSlide')?.addEventListener('click', () => goTo(current + 1));
+dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
+
+if (slides.length > 1) resetTimer();
+
+// ═══ ROW SCROLL BUTTONS ═══
+document.querySelectorAll('.row-container').forEach(container => {
+    const grid = container.querySelector('.posters-grid');
+    const leftBtn = container.querySelector('.scroll-left');
+    const rightBtn = container.querySelector('.scroll-right');
+    if (!grid || !leftBtn || !rightBtn) return;
+
+    const update = () => {
+        leftBtn.style.display = grid.scrollLeft > 5 ? 'flex' : 'none';
+        rightBtn.style.display = grid.scrollLeft < (grid.scrollWidth - grid.clientWidth - 5) ? 'flex' : 'none';
+    };
+
+    grid.addEventListener('scroll', update);
+    setTimeout(update, 200);
+
+    leftBtn.addEventListener('click', () => grid.scrollBy({ left: -(grid.clientWidth * 0.8), behavior: 'smooth' }));
+    rightBtn.addEventListener('click', () => grid.scrollBy({ left: grid.clientWidth * 0.8, behavior: 'smooth' }));
+});
+
+// ═══ NAVBAR SCROLL ═══
+window.addEventListener('scroll', () => {
+    document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 50);
+});
+</script>
+{% endblock %}

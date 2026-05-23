@@ -1,0 +1,152 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} - Account{% endblock %}
+
+{% block styles %}
+<style>
+.profile-page { padding: 100px 0 80px; min-height: 100vh; background: #141414; }
+.profile-container { max-width: 860px; margin: 0 auto; padding: 0 40px; }
+
+.profile-page-header {
+    font-size: 3rem; font-weight: 500; color: #e5e5e5;
+    padding-bottom: 20px; border-bottom: 1px solid #3d3d3d; margin-bottom: 36px;
+}
+
+/* Avatar card */
+.profile-card {
+    display: flex; align-items: center; gap: 20px;
+    padding: 24px 0; border-bottom: 1px solid #3d3d3d; margin-bottom: 28px;
+}
+.profile-avatar { width: 80px; height: 80px; border-radius: 6px; }
+.profile-info .p-username { font-size: 1.9rem; font-weight: 400; color: #e5e5e5; }
+.profile-info .p-email { color: #777; font-size: 1rem; margin-top: 4px; }
+
+/* Section card */
+.section-card { background: #1a1a1a; border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
+.section-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 24px; border-bottom: 1px solid #2a2a2a;
+}
+.section-title { font-size: 0.85rem; font-weight: 700; color: #777; text-transform: uppercase; letter-spacing: 1.5px; }
+
+/* Info rows */
+.info-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 24px; border-bottom: 1px solid #1e1e1e;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row .label { color: #777; font-size: 0.9rem; min-width: 160px; }
+.info-row .value { color: #e5e5e5; font-size: 0.9rem; flex: 1; }
+.action-btn {
+    background: none; border: 1px solid #555; color: #e5e5e5;
+    padding: 5px 16px; border-radius: 3px; font-size: 0.82rem;
+    cursor: pointer; text-decoration: none; transition: 0.2s;
+    white-space: nowrap;
+}
+.action-btn:hover { border-color: #e5e5e5; color: #fff; background: rgba(255,255,255,0.05); }
+.action-btn.danger { border-color: #e50914; color: #e50914; }
+.action-btn.danger:hover { background: #e50914; color: #fff; }
+
+/* Stats */
+.stats-row { display: flex; gap: 1px; background: #2a2a2a; }
+.stat-box { flex: 1; background: #1a1a1a; padding: 24px; text-align: center; }
+.stat-num { font-size: 2.4rem; font-weight: 700; color: #e50914; }
+.stat-label { color: #777; font-size: 0.85rem; margin-top: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-container">
+        <h1 class="profile-page-header">Account</h1>
+
+        <!-- Avatar & Name -->
+        <div class="profile-card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png" alt="Avatar" class="profile-avatar">
+            <div class="profile-info">
+                <div class="p-username">{{ user.username }}</div>
+                <div class="p-email">{{ user.email }}</div>
+            </div>
+        </div>
+
+        <!-- Activity Stats -->
+        <div class="section-card">
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-num">{{ request.user.mylist_set.count }}</div>
+                    <div class="stat-label">In My List</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">4K</div>
+                    <div class="stat-label">Stream Quality</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">100+</div>
+                    <div class="stat-label">Titles Available</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Details -->
+        <div class="section-card">
+            <div class="section-header">
+                <span class="section-title">Account Details</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Username</span>
+                <span class="value">{{ user.username }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Email address</span>
+                <span class="value">{{ user.email }}</span>
+                <a href="{% url 'account_email' %}" class="action-btn">Change Email</a>
+            </div>
+            <div class="info-row">
+                <span class="label">Password</span>
+                <span class="value">••••••••••</span>
+                <a href="{% url 'account_change_password' %}" class="action-btn">Change Password</a>
+            </div>
+            <div class="info-row">
+                <span class="label">Member since</span>
+                <span class="value">{{ user.date_joined|date:"F Y" }}</span>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="section-card">
+            <div class="section-header">
+                <span class="section-title">Browse</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Watchlist</span>
+                <span class="value">{{ request.user.mylist_set.count }} saved title{{ request.user.mylist_set.count|pluralize }}</span>
+                <a href="{% url 'core:my_list' %}" class="action-btn">View My List</a>
+            </div>
+            <div class="info-row">
+                <span class="label">Movies</span>
+                <span class="value">Browse all available movies</span>
+                <a href="{% url 'core:movies' %}" class="action-btn">Go to Movies</a>
+            </div>
+            <div class="info-row">
+                <span class="label">TV Shows</span>
+                <span class="value">Browse all available series</span>
+                <a href="{% url 'core:series' %}" class="action-btn">Go to Series</a>
+            </div>
+        </div>
+
+        <!-- Sign Out -->
+        <div class="section-card">
+            <div class="info-row">
+                <span class="label" style="color:#e5e5e5; font-size:1rem;">Sign out of Netflix</span>
+                <span class="value" style="color:#777; font-size:0.85rem;">You'll need your password to sign back in.</span>
+                <form method="post" action="{% url 'account_logout' %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="action-btn danger">Sign Out</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<h4 class="mb-4 text-white fw-bold">Dashboard</h4>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="title">Total Users</div>
+            <div class="value">{{ total_users }}</div>
+            <a href="{% url 'dashboard:users' %}" class="link">View all users</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="title">Total Movies</div>
+            <div class="value">{{ total_movies }}</div>
+            <a href="{% url 'dashboard:movies' %}" class="link">View all movies</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="title">Total Series</div>
+            <div class="value">{{ total_series }}</div>
+            <a href="{% url 'dashboard:series' %}" class="link">View all series</a>
+        </div>
+    </div>
+</div>
+
+<div class="dark-table mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="text-white mb-0 fw-bold">Recently Added Content</h6>
+        <a href="{% url 'dashboard:movies' %}" style="color: #e50914; font-size: 13px; text-decoration: none;">View All</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-borderless align-middle">
+            <thead>
+                <tr>
+                    <th style="padding-left:0">Title</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in recent_content %}
+                <tr>
+                    <td style="padding-left:0;  font-weight:500;">{{ item.title }}</td>
+                    <td>{{ item.content_type }}</td>
+                    <td>{{ item.category|default:"—" }}</td>
+                    <td>
+                        {% if item.is_active %}
+                            <span style="color: #46d369;">● Active</span>
+                        {% else %}
+                            <span style="color: #aaa;">● Inactive</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="padding-left:0; color:#666; padding-top:30px;">No content added yet. Add movies or series via the sidebar.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,67 +1,91 @@
-{% extends '../base.html' %}
-    {% load static %}
-    {% block title %}
-    
-    Netflix - Login
-    {% endblock title %}
-    
-    {% block others %}
-    
-    <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
-    {% endblock others %}
-{% block content %}
-
-   
-    {% include '../partials/navbar.html' with AUTH='false' %}
-    <header class="min-h-screen w-full bg-black bg-opacity-75 showcase border-gray-600 border-b-8 flex justify-center py-20 bg-no-repeat"  style="background-image: url('{% static 'background_netflix.jpg' %}');">
-        <div class="z-10 h-full py-32 md:py-0 text-gray-100 w-6/12  flex items-center flex-col">
-            <form method='POST' class="bg-black bg-opacity-70 py-8 px-4 w-8/12 rounded-md" >
-                <h1 class="text-4xl font-semibold text-center ">
-                    Log In
-                </h1>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Netflix</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: url('{% static "background_netflix.jpg" %}') center/cover no-repeat;
+            min-height: 100vh;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 0;
+        }
+        .page-wrap { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+        .top-bar {
+            padding: 20px 40px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+        }
+        .netflix-logo { color: #e50914; font-size: 28px; font-weight: 800; text-decoration: none; }
+        .form-area {
+            flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px;
+        }
+        .signin-card {
+            background: rgba(0,0,0,0.75); padding: 60px 68px; border-radius: 4px;
+            width: 100%; max-width: 460px;
+        }
+        .signin-card h1 { font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 28px; }
+        .form-floating { margin-bottom: 16px; }
+        .form-floating input {
+            background: #333; border: none; color: #fff; border-radius: 4px;
+            height: 50px; padding: 15px;
+        }
+        .form-floating input:focus { background: #454545; border: none; box-shadow: none; color: #fff; }
+        .form-floating label { color: #8c8c8c; left: 0; }
+        .btn-signin-submit {
+            background: #e50914; color: #fff; border: none; width: 100%; padding: 16px;
+            font-size: 16px; font-weight: 700; border-radius: 4px; margin-top: 8px; cursor: pointer;
+        }
+        .btn-signin-submit:hover { background: #f40612; }
+        .remember-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .remember-row label { color: #b3b3b3; font-size: 13px; }
+        .remember-row a { color: #b3b3b3; font-size: 13px; text-decoration: none; }
+        .remember-row a:hover { text-decoration: underline; }
+        .signup-link { color: #737373; font-size: 16px; margin-top: 40px; }
+        .signup-link a { color: #fff; text-decoration: none; }
+        .signup-link a:hover { text-decoration: underline; }
+        .error-box {
+            background: #e87c03; color: #fff; padding: 10px 15px; border-radius: 4px;
+            font-size: 14px; margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+    <div class="top-bar">
+        <a href="/" class="netflix-logo"><img src="{% static 'netflix.png' %}" alt="NETFLIX" style="height: 45px; object-fit: contain;"></a>
+    </div>
+    <div class="form-area">
+        <div class="signin-card">
+            <h1>Sign In</h1>
+            {% if form.errors %}
+            <div class="error-box">
+                <strong>Hmm, something went wrong.</strong> Please check your email and password and try again.
+            </div>
+            {% endif %}
+            <form method="POST" action="{% url 'account_login' %}">
                 {% csrf_token %}
-                
-                {% if form.errors %}
-                
-                <div class=" text-center my-4 text-primary_red">
-                
-                
-                
-                <p class="text-primary_red ">
-                    
-                    {{form.non_field_errors}}
-                </p>
-               
-                   
+                <div class="form-floating">
+                    <input type="email" name="login" id="id_login" class="form-control" placeholder="Email" required>
+                    <label for="id_login">Email or phone number</label>
                 </div>
-                {% endif %}
-                <div> 
-                    <Label class='text-lg font-medium mb-3'>
-                        Email
-                    </Label>
-                    <input class="p-2 bg-gray-200 rounded-sm text-gray-900 outline-none block w-full" type="email" name="login" id="id_login" placeholder="Your Email">
+                <div class="form-floating">
+                    <input type="password" name="password" id="id_password" class="form-control" placeholder="Password" required>
+                    <label for="id_password">Password</label>
                 </div>
-                <div class='my-3'> 
-                    <Label class='text-lg font-medium mb-3'>
-                        Password
-                    </Label>
-                    <input class="p-2 bg-gray-200 rounded-sm text-gray-900 outline-none block w-full" type="password" name="password" id="id_password" placeholder="Password">
-                </div>
-                {% if redirect_field_value %}
-                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-                {% endif %}
-                <div class="flex justify-center items-center">
-                    <button class="py-2 px-4 bg-primary_red text-gray-100 font-medium text-lg rounded-md">
-                        Log In
-                    </button>
-                </div>
-
-                <div class="text-center my-4">
-                    <p>
-                        Do not have account <a href="{% url 'account_signup' %}" class="text-blue-600"> Sign Up</a>
-                    </p>
-                </div>
+                <button type="submit" class="btn-signin-submit">Sign In</button>
             </form>
+            <div class="signup-link">
+                New to Netflix? <a href="{% url 'account_signup' %}">Sign up now</a>.
+            </div>
         </div>
-    </header>
-{% endblock content %}
+    </div>
+</div>
+</body>
+</html>

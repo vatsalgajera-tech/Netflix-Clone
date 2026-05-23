@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Email - Netflix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background:url('{% static "background_netflix.jpg" %}') center/cover no-repeat fixed;
+            min-height:100vh;
+            font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+        }
+        body::before { content:''; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:0; }
+        .page-wrap { position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column; }
+        .top-bar { padding:20px 40px; }
+        .form-area { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 20px; }
+        .form-card { background:rgba(0,0,0,0.85); padding:52px 60px; border-radius:6px; width:100%; max-width:520px; }
+        .form-card h1 { font-size:28px; font-weight:700; color:#fff; margin-bottom:6px; }
+        .subtitle { color:#737373; font-size:14px; margin-bottom:28px; }
+
+        .alert-box {
+            display:flex; align-items:center; gap:10px;
+            padding:13px 16px; border-radius:5px; margin-bottom:20px; font-size:14px; font-weight:500;
+        }
+        .alert-success { background:rgba(70,211,105,0.12); border:1px solid rgba(70,211,105,0.35); color:#46d369; }
+        .alert-error   { background:rgba(232,124,3,0.12);  border:1px solid rgba(232,124,3,0.4);   color:#e87c03; }
+        .alert-info    { background:rgba(74,144,226,0.1);  border:1px solid rgba(74,144,226,0.35); color:#4a90e2; }
+
+        .section-label { font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:#555; font-weight:600; margin-bottom:10px; }
+
+        .email-item {
+            display:flex; align-items:center; justify-content:space-between;
+            background:#1a1a1a; padding:13px 16px; border-radius:6px;
+            border:1px solid #2a2a2a; margin-bottom:8px;
+        }
+        .email-addr { color:#e5e5e5; font-size:14px; }
+        .badge-primary { background:rgba(70,211,105,0.15); color:#46d369; font-size:10px; font-weight:700; padding:2px 8px; border-radius:3px; margin-left:8px; letter-spacing:0.5px; }
+        .badge-unverified { background:rgba(245,166,35,0.15); color:#f5a623; font-size:10px; font-weight:700; padding:2px 8px; border-radius:3px; margin-left:8px; }
+        .email-acts { display:flex; gap:6px; }
+        .e-btn {
+            background:none; border:1px solid #333; color:#aaa;
+            padding:5px 12px; border-radius:4px; font-size:12px; cursor:pointer; transition:0.15s;
+        }
+        .e-btn:hover { border-color:#e5e5e5; color:#fff; }
+        .e-btn.red { border-color:#e50914; color:#e50914; }
+        .e-btn.red:hover { background:#e50914; color:#fff; border-color:#e50914; }
+
+        .divider { border-color:#2a2a2a; margin:24px 0; }
+
+        .add-row { display:flex; gap:10px; }
+        .add-row input {
+            flex:1; background:#1e1e1e; border:1px solid #333; color:#fff;
+            border-radius:5px; height:46px; padding:0 15px; font-size:14px; outline:none;
+        }
+        .add-row input:focus { border-color:#555; }
+        .btn-add {
+            background:#e50914; color:#fff; border:none; padding:0 22px;
+            font-size:14px; font-weight:700; border-radius:5px; cursor:pointer;
+        }
+        .btn-add:hover { background:#f40612; }
+        .back-link { color:#737373; font-size:14px; margin-top:24px; }
+        .back-link a { color:#e5e5e5; text-decoration:none; }
+        .back-link a:hover { text-decoration:underline; }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+    <div class="top-bar">
+        <a href="/"><img src="{% static 'netflix.png' %}" alt="Netflix" style="height:40px;"></a>
+    </div>
+    <div class="form-area">
+        <div class="form-card">
+            <h1>Manage Email</h1>
+            <p class="subtitle">Add or change the email address linked to your account.</p>
+
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert-box {% if 'error' in message.tags %}alert-error{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}">
+                    <i class="fa-solid {% if 'error' in message.tags %}fa-triangle-exclamation{% elif 'success' in message.tags %}fa-circle-check{% else %}fa-circle-info{% endif %}"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if emailaddresses %}
+            <div class="section-label">Your Email Addresses</div>
+            {% for emailaddress in emailaddresses %}
+            <div class="email-item">
+                <div>
+                    <span class="email-addr">{{ emailaddress.email }}</span>
+                    {% if emailaddress.primary %}<span class="badge-primary">PRIMARY</span>{% endif %}
+                    {% if not emailaddress.verified %}<span class="badge-unverified">UNVERIFIED</span>{% endif %}
+                </div>
+                <div class="email-acts">
+                    {% if not emailaddress.primary %}
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="email" value="{{ emailaddress.email }}">
+                        <button type="submit" name="action_primary" class="e-btn">Make Primary</button>
+                    </form>
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="email" value="{{ emailaddress.email }}">
+                        <button type="submit" name="action_remove" class="e-btn red">Remove</button>
+                    </form>
+                    {% endif %}
+                    {% if not emailaddress.verified %}
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="email" value="{{ emailaddress.email }}">
+                        <button type="submit" name="action_send" class="e-btn">Resend Verification</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            <hr class="divider">
+            {% endif %}
+
+            <div class="section-label">Add New Email</div>
+            <form method="post" class="add-row">
+                {% csrf_token %}
+                <input type="email" name="email" placeholder="Enter new email address" required>
+                <button type="submit" name="action_add" class="btn-add">Add</button>
+            </form>
+
+            <div class="back-link" style="margin-top:28px;">
+                <a href="{% url 'core:profile' %}">← Back to Account</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="text-white mb-0 fw-bold">Movies</h4>
+    <div class="d-flex align-items-center">
+        <a href="/admin/core/content/add/" class="btn btn-netflix">Add Movie</a>
+    </div>
+</div>
+
+<div class="dark-table">
+    <div class="table-responsive">
+        <table class="table table-borderless align-middle">
+            <thead>
+                    <th style="padding-left: 0;">Poster</th>
+                    <th>Title</th>
+                    <th>Genre</th>
+                    <th>Duration</th>
+                    <th>Release Year</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Real Data Loop -->
+                {% for movie in movies %}
+                <tr>
+                    <td style="padding-left: 0;">
+                        {% if movie.poster_url %}
+                            <img src="{{ movie.poster_url }}" alt="poster" style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;">
+                        {% elif movie.poster_image %}
+                            <img src="{{ movie.poster_image.url }}" alt="poster" style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/40x60?text=Poster" alt="poster" style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;">
+                        {% endif %}
+                    </td>
+                    <td style="">{{ movie.title }}</td>
+                    <td>
+                        {% for genre in movie.genres.all %}
+                            {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{{ movie.duration|default:"-" }}</td>
+                    <td>{{ movie.release_year }}</td>
+                    <td>
+                        {% if movie.is_active %}
+                            Active
+                        {% else %}
+                            Inactive
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/admin/core/content/{{ movie.pk }}/change/" class="btn btn-action-edit"><i class="fa-solid fa-pen"></i></a>
+                        <a href="/admin/core/content/{{ movie.pk }}/delete/" class="btn btn-action-delete"><i class="fa-solid fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <!-- Fallback to Dummy data matching screenshot if database is empty -->
+                <tr>
+                    <td style="padding-left: 0;"><img src="https://m.media-amazon.com/images/M/MV5BZWQ2OTZkOTUtMzRlMy00YjVjLTg2YzUtODcxMjhlMWExODhhXkEyXkFqcGc@._V1_.jpg" style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;"></td>
+                    <td style="">Extraction 2</td>
+                    <td>Action, Thriller</td>
+                    <td>2023</td>
+                    <td>Active</td>
+                    <td>
+                        <button class="btn btn-action-edit"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-action-delete"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 0;"><img src="https://m.media-amazon.com/images/M/MV5BZmNiMTQ2ODItNTQ2Yi00NmIwLWE1YTEtMmFlMTMzNjRkNDBhXkEyXkFqcGc@._V1_.jpg" style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;"></td>
+                    <td style="">The Gray Man</td>
+                    <td>Action, Thriller</td>
+                    <td>2022</td>
+                    <td>Active</td>
+                    <td>
+                        <button class="btn btn-action-edit"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-action-delete"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 0;"><img src="https://m.media-amazon.com/images/M/MV5BZmRjODgyMzEtMzIxYS00OWY2LTk4YjUtMjc4YWExZjZjYmMyXkEyXkFqcGc@._V1_.jpg" style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;"></td>
+                    <td style="">Red Notice</td>
+                    <td>Action, Comedy</td>
+                    <td>2021</td>
+                    <td>Active</td>
+                    <td>
+                        <button class="btn btn-action-edit"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-action-delete"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 0;"><img src="https://m.media-amazon.com/images/M/MV5BZDhjYWNlM2YtMDI4ZC00OTliLWExMzktMTlhOGE3NWU2YWVmXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;"></td>
+                    <td style="">The Adam Project</td>
+                    <td>Sci-Fi, Adventure</td>
+                    <td>2022</td>
+                    <td>Inactive</td>
+                    <td>
+                        <button class="btn btn-action-edit"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-action-delete"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
